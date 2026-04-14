@@ -1,0 +1,1325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VEWLL Equipment Dashboard — April 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f0f4f8;
+  --surface:#ffffff;
+  --surface2:#f8fafc;
+  --border:#e2e8f0;
+  --border-light:#edf2f7;
+  --text:#1a202c;
+  --text-2:#4a5568;
+  --text-3:#a0aec0;
+  --blue:#2563eb;
+  --blue-dim:rgba(37,99,235,.08);
+  --green:#16a34a;
+  --green-dim:rgba(22,163,74,.09);
+  --red:#dc2626;
+  --red-dim:rgba(220,38,38,.09);
+  --amber:#d97706;
+  --amber-dim:rgba(217,119,6,.09);
+  --purple:#7c3aed;
+  --purple-dim:rgba(124,58,237,.09);
+  --teal:#0d9488;
+  --teal-dim:rgba(13,148,136,.09);
+  --orange:#ea580c;
+  --shadow:0 4px 16px rgba(0,0,0,.08);
+  --shadow-sm:0 1px 4px rgba(0,0,0,.06);
+  --radius:12px;
+  --font:'Inter',sans-serif;
+  --mono:'DM Mono',monospace;
+}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;line-height:1.5}
+
+/* ==================== LOGIN SCREEN ==================== */
+#loginScreen{
+  position:fixed;inset:0;background:linear-gradient(135deg,#1e3a5f 0%,#2563eb 50%,#0d9488 100%);
+  display:flex;align-items:center;justify-content:center;z-index:9999;
+}
+.login-card{
+  background:rgba(255,255,255,.97);border-radius:20px;padding:44px 48px;
+  width:420px;max-width:95vw;box-shadow:0 24px 64px rgba(0,0,0,.3);
+  text-align:center;
+}
+.login-logo{
+  width:64px;height:64px;border-radius:16px;
+  background:linear-gradient(135deg,#3b82f6,#6366f1);
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;font-weight:800;color:#fff;letter-spacing:-1px;
+  box-shadow:0 0 30px rgba(99,102,241,.5);margin:0 auto 20px;
+}
+.login-title{font-size:22px;font-weight:700;color:var(--text);margin-bottom:6px}
+.login-sub{font-size:13px;color:var(--text-3);margin-bottom:32px}
+.login-field{margin-bottom:16px;text-align:left}
+.login-field label{font-size:11px;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;display:block}
+.login-field input{
+  width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:8px;
+  font-family:var(--font);font-size:14px;color:var(--text);outline:none;transition:all .15s;
+  background:var(--surface2);
+}
+.login-field input:focus{border-color:var(--blue);background:white;box-shadow:0 0 0 3px var(--blue-dim)}
+.login-btn{
+  width:100%;padding:13px;border:none;border-radius:8px;cursor:pointer;
+  background:linear-gradient(135deg,#2563eb,#6366f1);color:white;
+  font-family:var(--font);font-size:14px;font-weight:600;letter-spacing:.3px;
+  transition:all .2s;margin-top:8px;
+}
+.login-btn:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(37,99,235,.4)}
+.login-btn:active{transform:none}
+.login-err{
+  background:var(--red-dim);border:1px solid rgba(220,38,38,.25);
+  color:var(--red);font-size:12px;font-weight:500;
+  padding:10px 14px;border-radius:7px;margin-top:14px;display:none;
+}
+.login-err.show{display:block}
+
+/* ==================== MAIN APP ==================== */
+#app{display:none}
+.page{max-width:1500px;margin:0 auto;padding:20px 24px}
+
+/* HEADER */
+header{
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:16px 24px;margin-bottom:18px;
+  box-shadow:var(--shadow-sm);flex-wrap:wrap;gap:12px;
+}
+.logo-area{display:flex;align-items:center;gap:14px}
+.logo-icon{
+  width:44px;height:44px;border-radius:10px;
+  background:linear-gradient(135deg,#3b82f6,#6366f1);
+  display:flex;align-items:center;justify-content:center;
+  font-size:15px;font-weight:800;color:#fff;letter-spacing:-1px;flex-shrink:0;
+  box-shadow:0 0 20px rgba(99,102,241,.4);
+}
+.logo-text h1{font-size:16px;font-weight:700;color:var(--text);letter-spacing:-.3px}
+.logo-text p{font-size:11px;color:var(--text-3);margin-top:2px}
+.header-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.live-chip{
+  display:flex;align-items:center;gap:6px;
+  background:var(--green-dim);border:1px solid rgba(34,197,94,.25);
+  color:var(--green);font-size:11px;font-weight:600;
+  padding:5px 12px;border-radius:20px;
+}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(34,197,94,.4)}50%{opacity:.7;box-shadow:0 0 0 4px rgba(34,197,94,0)}}
+.date-chip{
+  background:var(--surface2);border:1px solid var(--border);
+  color:var(--text-2);font-size:11px;font-weight:500;
+  padding:5px 12px;border-radius:20px;
+}
+.logout-btn{
+  background:var(--red-dim);border:1px solid rgba(220,38,38,.2);
+  color:var(--red);font-size:11px;font-weight:600;
+  padding:5px 12px;border-radius:20px;cursor:pointer;
+  transition:all .15s;
+}
+.logout-btn:hover{background:var(--red);color:white}
+
+/* TABS */
+.tabs{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap}
+.tab{
+  padding:8px 20px;border-radius:8px;cursor:pointer;
+  font-size:12px;font-weight:600;color:var(--text-3);
+  border:1px solid var(--border);background:var(--surface);
+  transition:all .2s;letter-spacing:.2px;
+}
+.tab:hover{border-color:var(--blue);color:var(--blue)}
+.tab.active{background:var(--blue);color:#fff;border-color:var(--blue);box-shadow:0 0 16px rgba(59,130,246,.35)}
+
+/* KPI CARDS */
+.kpi-row{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:16px}
+@media(max-width:1100px){.kpi-row{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:600px){.kpi-row{grid-template-columns:repeat(2,1fr)}}
+.kpi{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:18px 20px;
+  box-shadow:var(--shadow-sm);transition:all .2s;
+  position:relative;overflow:hidden;cursor:pointer;
+}
+.kpi:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+.kpi.active-filter{border-color:var(--blue);box-shadow:0 0 0 2px rgba(59,130,246,.25),var(--shadow)}
+.kpi-bar{position:absolute;top:0;left:0;right:0;height:2px}
+.kpi-label{font-size:10px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.7px;margin-bottom:10px}
+.kpi-val{font-size:36px;font-weight:700;line-height:1;margin-bottom:4px;font-family:var(--mono)}
+.kpi-sub{font-size:10px;color:var(--text-3)}
+.kpi.blue .kpi-bar{background:var(--blue)} .kpi.blue .kpi-val{color:var(--blue)}
+.kpi.green .kpi-bar{background:var(--green)} .kpi.green .kpi-val{color:var(--green)}
+.kpi.red .kpi-bar{background:var(--red)} .kpi.red .kpi-val{color:var(--red)}
+.kpi.amber .kpi-bar{background:var(--amber)} .kpi.amber .kpi-val{color:var(--amber)}
+.kpi.purple .kpi-bar{background:var(--purple)} .kpi.purple .kpi-val{color:var(--purple)}
+.kpi.teal .kpi-bar{background:var(--teal)} .kpi.teal .kpi-val{color:var(--teal)}
+
+/* FILTER BAR */
+.filter-bar{
+  display:flex;align-items:center;gap:10px;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:10px 16px;
+  margin-bottom:16px;flex-wrap:wrap;box-shadow:var(--shadow-sm);
+}
+.filter-bar label{font-size:10px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.6px;white-space:nowrap}
+select,input[type=text]{
+  border:1px solid var(--border);border-radius:7px;
+  padding:6px 10px;font-family:var(--font);font-size:12px;
+  color:var(--text);background:var(--surface2);outline:none;
+  transition:border-color .15s;cursor:pointer;
+}
+select:focus,input[type=text]:focus{border-color:var(--blue);background:var(--surface)}
+.search-wrap{position:relative}
+.search-wrap svg{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--text-3)}
+input[type=text]{padding-left:30px;min-width:190px}
+.filter-sep{width:1px;height:18px;background:var(--border)}
+.result-chip{
+  background:var(--blue-dim);color:var(--blue);border:1px solid rgba(59,130,246,.3);
+  font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;
+  margin-left:auto;white-space:nowrap;font-family:var(--mono);
+}
+.btn-clear{
+  font-size:11px;color:var(--text-3);background:none;border:none;
+  cursor:pointer;font-family:var(--font);padding:4px 8px;border-radius:6px;
+  transition:all .15s;
+}
+.btn-clear:hover{color:var(--red);background:var(--red-dim)}
+
+/* LAYOUT */
+.main-layout{display:grid;grid-template-columns:1fr 290px;gap:14px}
+@media(max-width:1000px){.main-layout{grid-template-columns:1fr}}
+
+/* CARD */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-sm);overflow:hidden}
+.card-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:13px 18px;border-bottom:1px solid var(--border);
+}
+.card-title{font-size:12px;font-weight:600;color:var(--text);letter-spacing:.1px}
+.card-hint{font-size:10px;color:var(--text-3)}
+
+/* TABLE */
+.table-wrap{overflow-x:auto;max-height:560px;overflow-y:auto}
+table{width:100%;border-collapse:collapse}
+thead th{
+  padding:9px 14px;text-align:left;font-size:10px;font-weight:600;
+  color:var(--text-3);text-transform:uppercase;letter-spacing:.6px;
+  background:var(--surface2);border-bottom:1px solid var(--border);
+  position:sticky;top:0;z-index:1;white-space:nowrap;cursor:pointer;
+  user-select:none;transition:color .15s;
+}
+thead th:hover,th.sorted{color:var(--blue)}
+tbody tr{border-bottom:1px solid var(--border);transition:background .12s;cursor:pointer}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:var(--surface2)}
+tbody tr.row-selected{background:var(--blue-dim)}
+td{padding:10px 14px;font-size:12px;color:var(--text);white-space:nowrap}
+td.muted{color:var(--text-3)}
+td.mono{font-family:var(--mono);font-size:11px}
+.badge{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:3px 8px;border-radius:20px;font-size:10px;font-weight:600;
+  text-transform:uppercase;letter-spacing:.4px;
+}
+.badge-working{background:var(--green-dim);color:var(--green);border:1px solid rgba(34,197,94,.2)}
+.badge-faulty{background:var(--red-dim);color:var(--red);border:1px solid rgba(239,68,68,.2)}
+.badge-fleet{background:var(--blue-dim);color:var(--blue);border:1px solid rgba(59,130,246,.2)}
+.badge-rental{background:var(--purple-dim);color:var(--purple);border:1px solid rgba(167,139,250,.2)}
+.calib-ok{color:var(--green);font-weight:500}
+.calib-warn{color:var(--amber);font-weight:500}
+.calib-exp{color:var(--red);font-weight:500}
+.no-data{text-align:center;padding:60px 20px;color:var(--text-3);font-size:13px}
+
+/* RIGHT PANEL */
+.right-panel{display:flex;flex-direction:column;gap:12px}
+
+/* SITE BARS */
+.site-row{
+  display:flex;align-items:center;gap:8px;margin-bottom:7px;
+  cursor:pointer;border-radius:7px;padding:4px 6px;transition:background .12s;
+}
+.site-row:hover{background:var(--surface2)}
+.site-name{font-size:11px;color:var(--text-2);width:125px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex-shrink:0}
+.bar-track{flex:1;background:var(--border);border-radius:3px;height:5px;overflow:hidden}
+.bar-fill{height:5px;border-radius:3px;background:linear-gradient(90deg,var(--blue),var(--teal));transition:width .5s ease}
+.site-num{font-size:10px;font-weight:700;color:var(--text-3);width:20px;text-align:right;flex-shrink:0;font-family:var(--mono)}
+
+/* DONUT */
+.donut-container{display:flex;justify-content:center;margin-bottom:14px}
+.cat-item{
+  display:flex;align-items:center;gap:7px;margin-bottom:6px;
+  cursor:pointer;border-radius:6px;padding:4px 6px;transition:background .12s;
+}
+.cat-item:hover{background:var(--surface2)}
+.cat-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+.cat-name{font-size:11px;color:var(--text-2);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cat-pct{font-size:10px;color:var(--text-3);font-family:var(--mono);white-space:nowrap}
+
+/* DRAWER */
+.overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:400;
+  opacity:0;pointer-events:none;transition:opacity .25s;backdrop-filter:blur(2px);
+}
+.overlay.on{opacity:1;pointer-events:all}
+.drawer{
+  position:fixed;right:0;top:0;bottom:0;width:440px;max-width:100vw;
+  background:var(--surface);z-index:500;box-shadow:-8px 0 40px rgba(0,0,0,.15);
+  transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);
+  display:flex;flex-direction:column;overflow:hidden;
+}
+.drawer.open{transform:none}
+.drawer-top{
+  padding:20px 24px 16px;border-bottom:1px solid var(--border);
+  display:flex;align-items:flex-start;justify-content:space-between;
+  background:var(--surface);flex-shrink:0;
+}
+.drawer-cat{font-size:10px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
+.drawer-name{font-size:20px;font-weight:700;color:var(--text);line-height:1.1}
+.drawer-serial{font-size:12px;color:var(--text-3);margin-top:4px;font-family:var(--mono)}
+.close-btn{
+  width:28px;height:28px;border-radius:7px;display:flex;align-items:center;
+  justify-content:center;cursor:pointer;background:var(--surface2);
+  border:1px solid var(--border);color:var(--text-2);transition:all .15s;flex-shrink:0;font-size:16px;
+}
+.close-btn:hover{background:var(--red-dim);color:var(--red);border-color:rgba(220,38,38,.3)}
+.drawer-scroll{flex:1;overflow-y:auto;padding:20px 24px}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.detail-tile{
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:8px;padding:12px;
+}
+.detail-tile-lbl{font-size:10px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.detail-tile-val{font-size:14px;font-weight:600;color:var(--text)}
+.remarks-box{
+  background:var(--amber-dim);border:1px solid rgba(217,119,6,.2);
+  border-radius:8px;padding:12px;font-size:12px;color:var(--amber);
+  margin-bottom:16px;
+}
+.cal-section-title{font-size:11px;font-weight:700;color:var(--text-2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
+.cal-days-hdr{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:4px}
+.cal-day-name{text-align:center;font-size:9px;font-weight:700;color:var(--text-3);text-transform:uppercase;padding:3px 0}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:12px}
+.cal-cell{
+  aspect-ratio:1;display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-family:var(--mono);border-radius:5px;cursor:default;
+  position:relative;background:var(--surface2);border:1px solid var(--border);
+  color:var(--text-3);
+}
+.cal-cell.empty{background:none;border-color:transparent}
+.cal-cell.has-loc{background:var(--blue-dim);border-color:rgba(59,130,246,.25);color:var(--blue);font-weight:600;cursor:pointer}
+.cal-cell.today{border:2px solid var(--blue)!important;font-weight:700}
+.cal-cell .cal-tip{
+  position:absolute;bottom:calc(100%+4px);left:50%;transform:translateX(-50%);
+  background:#1a202c;color:white;font-size:10px;font-family:var(--font);
+  padding:4px 8px;border-radius:5px;white-space:nowrap;z-index:10;
+  opacity:0;pointer-events:none;transition:opacity .15s;
+}
+.cal-cell.has-loc:hover .cal-tip{opacity:1}
+.cal-hint{font-size:10px;color:var(--text-3);text-align:center}
+
+/* ==================== SITE DASHBOARD PANEL ==================== */
+#siteDashboard{display:none;margin-bottom:16px}
+.site-dash-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:10px;
+  padding:16px;
+}
+.site-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:10px;
+  padding:14px 16px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;
+}
+.site-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--blue),var(--teal));
+}
+.site-card:hover{transform:translateY(-2px);box-shadow:var(--shadow);border-color:var(--blue)}
+.site-card.expanded{border-color:var(--blue);box-shadow:0 0 0 2px var(--blue-dim)}
+.site-card-name{font-size:13px;font-weight:700;color:var(--text);margin-bottom:8px}
+.site-card-stats{display:flex;gap:12px;margin-bottom:10px}
+.site-stat{text-align:center}
+.site-stat-val{font-size:20px;font-weight:700;font-family:var(--mono);color:var(--blue)}
+.site-stat-lbl{font-size:9px;color:var(--text-3);text-transform:uppercase;letter-spacing:.4px}
+.site-card-toggle{
+  font-size:10px;color:var(--blue);font-weight:600;cursor:pointer;
+  display:flex;align-items:center;gap:4px;
+}
+.site-expand-panel{
+  display:none;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);
+}
+.site-expand-panel.open{display:block}
+.site-kit-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:5px 0;border-bottom:1px solid var(--border-light);font-size:11px;
+}
+.site-kit-row:last-child{border-bottom:none}
+.site-kit-name{color:var(--text);font-weight:500;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.site-kit-serial{color:var(--text-3);font-family:var(--mono);font-size:10px;margin:0 8px}
+.site-kit-status-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+
+/* MAN-DAYS TABLE */
+.mandays-section{margin-top:12px;padding-top:10px;border-top:2px dashed var(--border)}
+.mandays-title{font-size:10px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px}
+.mandays-table{width:100%;border-collapse:collapse}
+.mandays-table th{
+  font-size:9px;font-weight:700;color:var(--text-3);text-transform:uppercase;
+  letter-spacing:.5px;padding:5px 8px;background:var(--surface2);
+  border-bottom:1px solid var(--border);text-align:left;
+}
+.mandays-table th:last-child{text-align:right}
+.mandays-table td{
+  font-size:11px;padding:5px 8px;border-bottom:1px solid var(--border-light);
+  color:var(--text);
+}
+.mandays-table tr:last-child td{border-bottom:none}
+.mandays-table td:last-child{text-align:right;font-family:var(--mono);font-weight:700;color:var(--blue)}
+.mandays-bar-wrap{display:flex;align-items:center;gap:6px}
+.mandays-mini-bar{height:4px;border-radius:2px;background:linear-gradient(90deg,var(--blue),var(--teal));min-width:4px}
+.mandays-total-row td{font-weight:700;color:var(--text);background:var(--blue-dim);border-radius:0}
+.mandays-total-row td:last-child{color:var(--blue)}
+
+/* ==================== MAN-DAYS TABLE ==================== */
+.mandays-section{margin-top:14px;padding-top:12px;border-top:1px solid var(--border)}
+.mandays-title{font-size:10px;font-weight:700;color:var(--text-2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.mandays-table{width:100%;border-collapse:collapse;font-size:11px}
+.mandays-table thead th{
+  padding:5px 8px;text-align:left;font-size:9px;font-weight:700;
+  color:var(--text-3);text-transform:uppercase;letter-spacing:.5px;
+  background:var(--surface2);border-bottom:1px solid var(--border);
+}
+.mandays-table tbody td{padding:6px 8px;border-bottom:1px solid var(--border-light);vertical-align:middle}
+.mandays-table tbody tr:last-child td{border-bottom:none}
+.mandays-table tbody tr:hover{background:var(--surface2)}
+.mandays-total-row td{font-weight:700;color:var(--blue);background:var(--blue-dim)!important;border-top:1px solid rgba(59,130,246,.2)!important}
+.mandays-bar-wrap{display:flex;align-items:center;gap:6px}
+.mandays-mini-bar{height:5px;border-radius:3px;background:linear-gradient(90deg,var(--teal),var(--blue));min-width:2px;flex-shrink:0}
+.mandays-days-badge{
+  background:var(--teal-dim);color:var(--teal);border:1px solid rgba(13,148,136,.2);
+  font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;font-family:var(--mono);
+  white-space:nowrap;
+}
+.mandays-kit-list{font-size:10px;color:var(--text-3);margin-top:2px}
+.site-section-label{
+  font-size:9px;font-weight:700;color:var(--text-3);text-transform:uppercase;
+  letter-spacing:.6px;margin:10px 0 6px;padding-bottom:4px;border-bottom:1px solid var(--border);
+}
+
+/* ==================== ONEDRIVE PANEL ==================== */
+.onedrive-bar{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  padding:10px 16px;margin-bottom:16px;box-shadow:var(--shadow-sm);
+  display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+}
+.od-label{font-size:11px;font-weight:600;color:var(--text-2);white-space:nowrap}
+.od-url-input{
+  flex:1;min-width:280px;border:1px solid var(--border);border-radius:7px;
+  padding:7px 12px;font-family:var(--mono);font-size:11px;
+  color:var(--text);background:var(--surface2);outline:none;transition:border-color .15s;
+}
+.od-url-input:focus{border-color:var(--blue);background:white}
+.od-btn{
+  padding:7px 14px;border:none;border-radius:7px;cursor:pointer;
+  font-family:var(--font);font-size:11px;font-weight:600;
+  background:var(--blue);color:white;transition:all .2s;white-space:nowrap;
+}
+.od-btn:hover{background:#1d4ed8}
+.od-status{font-size:11px;font-weight:500;padding:4px 10px;border-radius:6px;white-space:nowrap}
+.od-status.idle{background:var(--surface2);color:var(--text-3);border:1px solid var(--border)}
+.od-status.loading{background:var(--blue-dim);color:var(--blue);border:1px solid rgba(59,130,246,.25);animation:blink 1s infinite}
+.od-status.ok{background:var(--green-dim);color:var(--green);border:1px solid rgba(34,197,94,.25)}
+.od-status.err{background:var(--red-dim);color:var(--red);border:1px solid rgba(220,38,38,.25)}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.5}}
+.od-file-upload{display:none}
+.od-local-btn{
+  padding:7px 14px;border:1px solid var(--border);border-radius:7px;cursor:pointer;
+  font-family:var(--font);font-size:11px;font-weight:600;
+  background:var(--surface2);color:var(--text-2);transition:all .2s;white-space:nowrap;
+}
+.od-local-btn:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-dim)}
+
+/* LOAD OVERLAY */
+#loadOverlay{
+  position:fixed;inset:0;background:rgba(255,255,255,.85);z-index:800;
+  display:none;align-items:center;justify-content:center;flex-direction:column;gap:16px;
+}
+#loadOverlay.show{display:flex}
+.load-spinner{
+  width:48px;height:48px;border:3px solid var(--border);
+  border-top-color:var(--blue);border-radius:50%;animation:spin 0.8s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.load-msg{font-size:14px;font-weight:500;color:var(--text-2)}
+</style>
+</head>
+<body>
+
+<!-- ==================== LOGIN SCREEN ==================== -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">VE</div>
+    <div class="login-title">VEWLL Equipment Dashboard</div>
+    <div class="login-sub">Sign in to access the equipment tracking system</div>
+    <div class="login-field">
+      <label>Username</label>
+      <input type="text" id="loginUser" placeholder="Enter username" autocomplete="username">
+    </div>
+    <div class="login-field">
+      <label>Password</label>
+      <input type="password" id="loginPass" placeholder="Enter password" autocomplete="current-password">
+    </div>
+    <button class="login-btn" onclick="doLogin()">Sign In →</button>
+    <div class="login-err" id="loginErr">❌ Invalid username or password</div>
+  </div>
+</div>
+
+<!-- ==================== MAIN APP ==================== -->
+<div id="app">
+<div class="page">
+
+  <!-- Header -->
+  <header>
+    <div class="logo-area">
+      <div class="logo-icon">VE</div>
+      <div class="logo-text">
+        <h1>VEWLL Equipment Dashboard</h1>
+        <p>Equipment Tracking & Site Management — April 2026</p>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="live-chip"><div class="live-dot"></div>Live</div>
+      <div class="date-chip" id="datechip">📅 Monday, 13 April 2026</div>
+      <button class="logout-btn" onclick="doLogout()">⏏ Sign Out</button>
+    </div>
+  </header>
+
+  <!-- OneDrive / File Load Bar -->
+  <div class="onedrive-bar">
+    <span class="od-label">📂 Data Source</span>
+    <input type="text" class="od-url-input" id="odUrl" placeholder="Paste OneDrive share link (Excel file)…">
+    <button class="od-btn" onclick="loadFromOneDrive()">🔄 Load from OneDrive</button>
+    <span style="font-size:11px;color:var(--text-3)">or</span>
+    <label class="od-local-btn" for="localFile">📁 Upload Local Excel</label>
+    <input type="file" id="localFile" class="od-file-upload" accept=".xlsx,.xls" onchange="loadFromLocalFile(event)">
+    <div class="od-status idle" id="odStatus">Using embedded data</div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <div class="tab active" onclick="setTab('all',this)">All Equipment</div>
+    <div class="tab" onclick="setTab('fleet',this)">VEWLL Fleet</div>
+    <div class="tab" onclick="setTab('rental',this)">Rental Kit</div>
+    <div class="tab" onclick="setTab('sites',this)">🏗️ Site Dashboard</div>
+  </div>
+
+  <!-- KPI Row -->
+  <div class="kpi-row" id="kpi-row"></div>
+
+  <!-- Filter Bar -->
+  <div class="filter-bar">
+    <label>Search</label>
+    <div class="search-wrap">
+      <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      <input type="text" id="q" placeholder="Name, serial, site…" oninput="applyFilters()">
+    </div>
+    <div class="filter-sep"></div>
+    <label>Status</label>
+    <select id="fStatus" onchange="applyFilters()">
+      <option value="">All</option>
+      <option value="Working">Working</option>
+      <option value="Faulty">Faulty</option>
+    </select>
+    <label>Category</label>
+    <select id="fCat" onchange="applyFilters()"><option value="">All</option></select>
+    <label>Owner</label>
+    <select id="fOwner" onchange="applyFilters()"><option value="">All</option></select>
+    <button class="btn-clear" onclick="clearFilters()">✕ Clear</button>
+    <div class="result-chip" id="resultChip">153 items</div>
+  </div>
+
+  <!-- Site Dashboard Panel -->
+  <div id="siteDashboard">
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">🏗️ Site Dashboard — Today's Deployment</span>
+        <span class="card-hint">Click any site card to expand kit details</span>
+      </div>
+      <div class="site-dash-grid" id="siteDashGrid"></div>
+    </div>
+  </div>
+
+  <!-- Main Layout (table + right panel) -->
+  <div class="main-layout" id="mainLayout">
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Equipment Registry</span>
+        <span class="card-hint">Click any row for full details</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th onclick="sortBy('sno')"># ↕</th>
+              <th onclick="sortBy('category')">Category ↕</th>
+              <th onclick="sortBy('equipment')">Equipment ↕</th>
+              <th onclick="sortBy('serial')">Serial No.</th>
+              <th onclick="sortBy('owner')">Owner ↕</th>
+              <th onclick="sortBy('status')">Status ↕</th>
+              <th onclick="sortBy('calib_expiry')">Calib. Expiry ↕</th>
+              <th>Today's Location</th>
+              <th>Source</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="right-panel">
+      <div class="card">
+        <div class="card-header"><span class="card-title">Today's Site Distribution</span></div>
+        <div style="padding:12px 14px" id="siteBars"></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">Category Breakdown</span></div>
+        <div style="padding:14px">
+          <div class="donut-container"><canvas id="donut" width="160" height="160"></canvas></div>
+          <div id="catLegend"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /page -->
+</div><!-- /app -->
+
+<!-- Drawer overlay -->
+<div class="overlay" id="overlay" onclick="closeDrawer()"></div>
+
+<!-- Drawer -->
+<div class="drawer" id="drawer">
+  <div class="drawer-top">
+    <div id="drawer-title"></div>
+    <div class="close-btn" onclick="closeDrawer()">✕</div>
+  </div>
+  <div class="drawer-scroll" id="drawer-body"></div>
+</div>
+
+<!-- Load overlay -->
+<div id="loadOverlay">
+  <div class="load-spinner"></div>
+  <div class="load-msg" id="loadMsg">Loading Excel data…</div>
+</div>
+
+<script>
+// ==================== AUTH ====================
+const CREDS = { user: 'Voltechstore', pass: 'Voltech@2026' };
+let isLoggedIn = false;
+
+function doLogin() {
+  const u = document.getElementById('loginUser').value.trim();
+  const p = document.getElementById('loginPass').value;
+  if (u === CREDS.user && p === CREDS.pass) {
+    isLoggedIn = true;
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    init();
+  } else {
+    document.getElementById('loginErr').classList.add('show');
+    document.getElementById('loginPass').value = '';
+  }
+}
+
+function doLogout() {
+  isLoggedIn = false;
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('loginUser').value = '';
+  document.getElementById('loginPass').value = '';
+  document.getElementById('loginErr').classList.remove('show');
+}
+
+document.getElementById('loginPass').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+document.getElementById('loginUser').addEventListener('keydown', e => { if(e.key==='Enter') document.getElementById('loginPass').focus(); });
+
+// ==================== DATA ====================
+</script>
+<script>
+// Embedded DATA (fallback when no Excel uploaded)
+const EMBEDDED_DATA = [{"sno": "01", "category": "CT Analyser", "equipment": "CT Analyser", "serial": "MB193K", "owner": "Voltech", "status": "Faulty", "calib_expiry": "2026-01-19", "remarks": "Metering core not working/ \nOmicron Srevice Centre", "sheet": "VEWLL Fleet", "april_locations": {"1": "Repair", "2": "Repair", "3": "Repair", "4": "Repair", "5": "Repair", "6": "Repair", "7": "Repair", "8": "Repair", "9": "Repair", "10": "Repair", "11": "Repair", "12": "Repair", "13": "Repair"}}, {"sno": "02", "category": "CPC 100", "equipment": "CPC100", "serial": "UA411B", "owner": "Voltech", "status": "Working", "calib_expiry": "2026-12-14", "remarks": "", "sheet": "VEWLL Fleet", "april_locations": {"1": "Farej Al Murah 2", "2": "Farej Al Murah 2", "3": "Argentine Store", "4": "Mamoura 1", "5": "Mamoura 1", "6": "Mamoura 1", "7": "Mamoura 1", "8": "Mamoura 1", "9": "Mamoura 1", "10": "Mamoura 1", "11": "Mamoura 1", "12": "Rasheeda", "13": "Rasheeda"}}, {"sno": "03", "category": "CPC 100", "equipment": "CPC100", "serial": "TD079A", "owner": "Voltech", "status": "Working", "calib_expiry": "2026-10-19", "remarks": "From Kuwait", "sheet": "VEWLL Fleet", "april_locations": {"1": "Mamoura 1", "2": "Mamoura 1", "3": "Mamoura 1", "4": "Mamoura 1", "5": "Mamoura 1", "6": "Mamoura 1", "7": "Mamoura 1", "8": "Mamoura 1", "9": "Mamoura 1", "10": "Mamoura 1", "11": "Mamoura 1", "12": "Mamoura 1", "13": "Mamoura 1"}}, {"sno": "04", "category": "CPC 100", "equipment": "CPC100", "serial": "NC366T", "owner": "Voltech", "status": "Working", "calib_expiry": "2026-10-14", "remarks": "", "sheet": "VEWLL Fleet", "april_locations": {"1": "RLPP2", "2": "RLPP2", "3": "Argentine Store", "4": "Umm Al Amed", "5": "Farej Al Murah 2", "6": "Farej Al Murah 2", "7": "Farej Al Murah 2", "8": "Farej Al Murah 2", "9": "Farej Al Murah 2", "10": "Farej Al Murah 2", "11": "Farej Al Murah 2", "12": "Farej Al Murah 2", "13": "Farej Al Murah 2"}}, {"sno": "05", "category": "CT Analyser", "equipment": "CT Analyser", "serial": "MB175K", "owner": "Voltech", "status": "Faulty", "calib_expiry": "No Calibration", "remarks": "Need Full Service , Omicron Servyce Center", "sheet": "VEWLL Fleet", "april_locations": {"1": "Repair", "2": "Repair", "3": "Repair", "4": "Repair", "5": "Repair", "6": "Repair", "7": "Repair", "8": "Repair", "9": "Repair", "10": "Repair", "11": "Repair", "12": "Repair", "13": "Repair"}}, {"sno": "06", "category": "CMC", "equipment": "CMC 356", "serial": "JA222R", "owner": "Voltech", "status": "Working", "calib_expiry": "2027-02-22", "remarks": "Full Function", "sheet": "VEWLL Fleet", "april_locations": {"1": "Farej Al Murah 2", "2": "Farej Al Murah 2", "3": "Farej Al Murah 2", "4": "Farej Al Murah 2", "5": "Farej Al Murah 2", "6": "Farej Al Murah 2", "7": "Farej Al Murah 2", "8": "Farej Al Murah 2", "9": "Farej Al Murah 2", "10": "Farej Al Murah 2", "11": "Farej Al Murah 2", "12": "Mamoura 1", "13": "Mamoura 1"}}, {"sno": "07", "category": "CMC", "equipment": "CMC 256", "serial": "CJ141I", "owner": "Suresh", "status": "Working", "calib_expiry": "2027-08-03", "remarks": "Full Function", "sheet": "VEWLL Fleet", "april_locations": {"1": "Semaisma 2", "2": "Semaisma 2", "3": "Semaisma 2", "4": "Semaisma 2", "5": "Semaisma 2", "6": "Semaisma 2", "7": "Semaisma 2", "8": "Semaisma 2", "9": "Semaisma 2", "10": "Semaisma 2", "11": "Semaisma 2", "12": "Semaisma 2", "13": "Semaisma 2"}}, {"sno": "08", "category": "CMC", "equipment": "CMC 356", "serial": "NB356W", "owner": "Voltech", "status": "Working", "calib_expiry": "2026-10-19", "remarks": "From Kuwait", "sheet": "VEWLL Fleet", "april_locations": {"1": "ALKheesa", "2": "ALKheesa", "3": "NFE", "4": "NFE", "5": "NFE", "6": "NFE", "7": "NFE", "8": "NFE", "9": "NFE", "10": "NFE", "11": "NFE", "12": "NFE", "13": "NFE"}}, {"sno": "09", "category": "CMC", "equipment": "CMC 356", "serial": "JA233R", "owner": "Voltech", "status": "Working", "calib_expiry": "2027-02-22", "remarks": "Full Function/ Kit change with Suresh", "sheet": "VEWLL Fleet", "april_locations": {"1": "Suresh", "2": "Suresh", "3": "Suresh", "4": "Suresh", "5": "Suresh", "6": "Suresh", "7": "Suresh", "8": "Suresh", "9": "Suresh", "10": "Suresh", "11": "Suresh", "12": "Suresh", "13": "Suresh"}}, {"sno": "10", "category": "CMC", "equipment": "CMC 356", "serial": "KD393T", "owner": "Siemens", "status": "Working", "calib_expiry": "2027-10-02", "remarks": "Full Function", "sheet": "VEWLL Fleet", "april_locations": {"1": "GTC 1181", "2": "GTC 1181", "3": "GTC 1181", "4": "GTC 1181", "5": "GTC 1181", "6": "GTC 1181", "7": "GTC 1181", "8": "GTC 1181", "9": "GTC 1181", "10": "Argentine Store", "11": "GTC 1181", "12": "GTC 1181", "13": "GTC 1181"}}, {"sno": "1", "category": "CT Analyzer", "equipment": "CT Analyzer", "serial": "MB080K", "owner": "NCC", "status": "Working", "calib_expiry": "2026-12-14", "remarks": "Kit Changed to Suresh", "sheet": "Rental Kit", "april_locations": {"1": "RLPP2", "2": "RLPP2", "3": "Returned", "4": "Returned", "5": "Returned", "6": "Returned", "7": "Returned", "8": "Returned", "9": "Returned", "10": "Returned", "11": "Returned", "12": "Returned", "13": "Returned"}}, {"sno": "2", "category": "CMC", "equipment": "CMC 356", "serial": "JA773R", "owner": "Mumbai", "status": "Working", "calib_expiry": "2027-01-22", "remarks": "Mumbai", "sheet": "Rental Kit", "april_locations": {"1": "Umm Al Amed", "2": "Mesaimeer 2", "3": "Mesaimeer 2", "4": "Mesaimeer 2", "5": "Mesaimeer 2", "6": "Mesaimeer 2", "7": "Mesaimeer 2", "8": "Mesaimeer 2", "9": "Mesaimeer 2", "10": "Mesaimeer 2", "11": "Mesaimeer 2", "12": "Mesaimeer 2", "13": "Mesaimeer 2"}}, {"sno": "3", "category": "CMC", "equipment": "CMC 356", "serial": "MC 371V", "owner": "Riyaz", "status": "Working", "calib_expiry": "2026-04-22", "remarks": "", "sheet": "Rental Kit", "april_locations": {"1": "Semaisma 2", "2": "Semaisma 2", "3": "Semaisma 2", "4": "Semaisma 2", "5": "Semaisma 2", "6": "Semaisma 2", "7": "Semaisma 2", "8": "Semaisma 2", "9": "Semaisma 2", "10": "Semaisma 2", "11": "Semaisma 2", "12": "Semaisma 2", "13": "Semaisma 2"}}, {"sno": "4", "category": "CIBANO", "equipment": "CIBANO 500", "serial": "BM282E", "owner": "NCC", "status": "Working", "calib_expiry": "2026-11-22", "remarks": "", "sheet": "Rental Kit", "april_locations": {"1": "Returned", "2": "Returned", "3": "Returned", "4": "Returned", "5": "Returned", "6": "Returned", "7": "Returned", "8": "Returned", "9": "Returned", "10": "Returned", "11": "Rasheeda", "12": "Rasheeda", "13": "Rasheeda"}}];
+</script>
+<script>
+// ==================== STATE ====================
+let DATA = EMBEDDED_DATA;
+const TODAY_DATE = new Date();
+const TODAY_DAY = String(TODAY_DATE.getDate());
+const NOW = TODAY_DATE;
+
+let currentTab = 'all';
+let kpiFilter = null;
+let sortKey = 'sno';
+let sortAsc = true;
+let filtered = [];
+
+function init() {
+  // Update date chip
+  document.getElementById('datechip').textContent = '📅 ' + NOW.toLocaleDateString('en-GB', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
+  
+  const cats = [...new Set(DATA.map(e => e.category))].sort();
+  const owners = [...new Set(DATA.map(e => e.owner))].sort();
+  const catSel = document.getElementById('fCat');
+  const ownSel = document.getElementById('fOwner');
+  catSel.innerHTML = '<option value="">All</option>';
+  ownSel.innerHTML = '<option value="">All</option>';
+  cats.forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; catSel.appendChild(o); });
+  owners.forEach(o => { const el = document.createElement('option'); el.value = o; el.textContent = o; ownSel.appendChild(el); });
+  applyFilters();
+}
+
+// ==================== ONEDRIVE / FILE LOAD ====================
+
+function setOdStatus(state, msg) {
+  const el = document.getElementById('odStatus');
+  el.className = 'od-status ' + state;
+  el.textContent = msg;
+}
+
+/**
+ * OneDrive Integration Guide:
+ * 1. Upload your Excel to OneDrive
+ * 2. Right-click → Share → "Anyone with the link can view"
+ * 3. Copy the link — it looks like: https://1drv.ms/x/s!XXXXXXX
+ * 4. Paste it in the input above and click "Load from OneDrive"
+ *
+ * The system converts the share link to a direct download URL automatically.
+ */
+async function loadFromOneDrive() {
+  const url = document.getElementById('odUrl').value.trim();
+  if (!url) { alert('Please paste a OneDrive share link first.'); return; }
+
+  setOdStatus('loading', '⏳ Fetching…');
+  showLoad('Connecting to OneDrive…');
+
+  try {
+    // Convert OneDrive share link to direct download
+    let dlUrl = url;
+    if (url.includes('1drv.ms') || url.includes('sharepoint.com') || url.includes('onedrive.live.com')) {
+      // For short links: embed as download
+      dlUrl = url.replace('view.aspx', 'download.aspx')
+                 .replace('?e=', '?download=1&e=')
+                 .replace('redir?resid=', 'download.aspx?resid=');
+      // If it's a 1drv.ms short URL, we need to use the embed trick
+      if (url.includes('1drv.ms')) {
+        // Convert: https://1drv.ms/x/s!ABC → fetch the redirect first
+        const base64 = btoa(url).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+        dlUrl = `https://api.onedrive.com/v1.0/shares/u!${base64}/root/content`;
+      }
+    }
+
+    const resp = await fetch(dlUrl);
+    if (!resp.ok) throw new Error('HTTP ' + resp.status + ' — Check the link allows public access');
+
+    const buf = await resp.arrayBuffer();
+    processExcelBuffer(buf);
+    setOdStatus('ok', '✅ Loaded from OneDrive');
+  } catch (err) {
+    setOdStatus('err', '❌ ' + err.message);
+    hideLoad();
+    alert('Could not load from OneDrive:\n' + err.message + '\n\nTip: Make sure the file is shared publicly and try using "Upload Local Excel" instead for direct file access.');
+  }
+}
+
+function loadFromLocalFile(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  setOdStatus('loading', '⏳ Reading file…');
+  showLoad('Reading Excel file…');
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      processExcelBuffer(e.target.result);
+      setOdStatus('ok', '✅ Loaded: ' + file.name);
+    } catch(err) {
+      setOdStatus('err', '❌ ' + err.message);
+      hideLoad();
+      alert('Error reading file: ' + err.message);
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function processExcelBuffer(buffer) {
+  try {
+    showLoad('Parsing Excel sheets…');
+    const wb = XLSX.read(buffer, { type: 'array', cellDates: true });
+    
+    // Use only first two sheets
+    const sheet1Name = wb.SheetNames[0];
+    const sheet2Name = wb.SheetNames[1];
+    
+    const rows1 = XLSX.utils.sheet_to_json(wb.Sheets[sheet1Name], { header: 1, defval: '' });
+    const rows2 = sheet2Name ? XLSX.utils.sheet_to_json(wb.Sheets[sheet2Name], { header: 1, defval: '' }) : [];
+
+    showLoad('Processing equipment records…');
+    DATA = [];
+
+    function parseSheet(rows, sheetLabel) {
+      // Find header row (has "S.No" or "Equipment")
+      let headerRow = -1;
+      for (let i = 0; i < Math.min(10, rows.length); i++) {
+        const r = rows[i];
+        if (r.some(c => typeof c === 'string' && (c.toString().toLowerCase().includes('s.no') || c.toString().toLowerCase().includes('serial')))) {
+          headerRow = i;
+          break;
+        }
+      }
+      if (headerRow < 0) return;
+
+      const headers = rows[headerRow].map(h => h ? h.toString().trim().toLowerCase() : '');
+      const snoIdx = headers.findIndex(h => h.includes('s.no'));
+      const catIdx = headers.findIndex(h => h.includes('category'));
+      const eqpIdx = headers.findIndex(h => h.includes('equipment'));
+      const serialIdx = headers.findIndex(h => h.includes('equp') || h.includes('serial'));
+      const ownerIdx = headers.findIndex(h => h === 'owner');
+      const statusIdx = headers.findIndex(h => h === 'status');
+      const calibIdx = headers.findIndex(h => h.includes('calib') || h.includes('cali') || h.includes('expir'));
+      const remarksIdx = headers.findIndex(h => h.includes('remark'));
+
+      // Find date columns (April dates)
+      const dateCols = [];
+      headers.forEach((h, idx) => {
+        if (idx > remarksIdx && h && idx >= 8) {
+          dateCols.push({ idx, header: rows[headerRow][idx] });
+        }
+      });
+
+      for (let i = headerRow + 1; i < rows.length; i++) {
+        const row = rows[i];
+        if (!row[snoIdx] || !row[eqpIdx]) continue;
+
+        const april_locations = {};
+        dateCols.forEach(({ idx, header }) => {
+          const val = row[idx];
+          if (val && val.toString().trim()) {
+            // Determine day number
+            let day = '';
+            if (header instanceof Date) {
+              day = String(header.getDate());
+            } else if (typeof header === 'number') {
+              try {
+                const d = XLSX.SSF.parse_date_code(header);
+                day = String(d.d);
+              } catch(e) { day = String(idx - 7); }
+            } else {
+              const m = String(header).match(/(\d+)/);
+              if (m) day = m[1];
+            }
+            if (day) april_locations[day] = val.toString().trim();
+          }
+        });
+
+        const calib = row[calibIdx];
+        let calibStr = '';
+        if (calib instanceof Date && !isNaN(calib)) {
+          // datetime object → YYYY-MM-DD
+          const y = calib.getFullYear();
+          const m = String(calib.getMonth()+1).padStart(2,'0');
+          const d = String(calib.getDate()).padStart(2,'0');
+          calibStr = y + '-' + m + '-' + d;
+        } else if (typeof calib === 'number' && calib > 1000) {
+          // Excel serial date number
+          try {
+            const parsed = XLSX.SSF.parse_date_code(calib);
+            calibStr = parsed.y + '-' + String(parsed.m).padStart(2,'0') + '-' + String(parsed.d).padStart(2,'0');
+          } catch(e) { calibStr = String(calib).trim(); }
+        } else if (calib) {
+          const s = String(calib).trim();
+          // Try to parse string dates like "2026-01-19 00:00:00"
+          const d = new Date(s);
+          if (!isNaN(d) && s.match(/\d{4}/)) {
+            const y = d.getFullYear();
+            const mo = String(d.getMonth()+1).padStart(2,'0');
+            const dy = String(d.getDate()).padStart(2,'0');
+            calibStr = y + '-' + mo + '-' + dy;
+          } else {
+            calibStr = s; // e.g. "No Calibration"
+          }
+        }
+
+        DATA.push({
+          sno: String(row[snoIdx] || '').trim(),
+          category: String(row[catIdx] || '').trim(),
+          equipment: String(row[eqpIdx] || '').trim(),
+          serial: String(row[serialIdx] || '').trim(),
+          owner: String(row[ownerIdx] || '').trim(),
+          status: String(row[statusIdx] || '').trim(),
+          calib_expiry: calibStr,
+          remarks: String(row[remarksIdx] || '').trim(),
+          sheet: sheetLabel,
+          april_locations
+        });
+      }
+    }
+
+    parseSheet(rows1, 'VEWLL Fleet');
+    parseSheet(rows2, 'Rental Kit');
+
+    if (DATA.length === 0) {
+      DATA = EMBEDDED_DATA;
+      throw new Error('No valid data found in the Excel file. Using embedded data.');
+    }
+
+    hideLoad();
+    // Re-init filters
+    init();
+  } catch(err) {
+    hideLoad();
+    throw err;
+  }
+}
+
+function showLoad(msg) {
+  document.getElementById('loadMsg').textContent = msg;
+  document.getElementById('loadOverlay').classList.add('show');
+}
+
+function hideLoad() {
+  document.getElementById('loadOverlay').classList.remove('show');
+}
+
+// ==================== HELPERS ====================
+
+function todayLoc(e) {
+  return (e.april_locations[TODAY_DAY] || e.april_locations[String(parseInt(TODAY_DAY))] || '').trim();
+}
+
+function calibSt(exp) {
+  if (!exp || exp === 'No Calibration' || exp === 'nan' || exp === '') return 'none';
+  const d = new Date(exp.split(' ')[0]);
+  if (isNaN(d)) return 'none';
+  const diff = (d - NOW) / 86400000;
+  if (diff < 0) return 'expired';
+  if (diff < 90) return 'warn';
+  return 'ok';
+}
+
+function fmtDate(exp) {
+  if (!exp || exp === 'No Calibration' || exp === 'nan' || exp === '') return '—';
+  const d = new Date(exp.split(' ')[0]);
+  if (isNaN(d)) return exp;
+  return d.toLocaleDateString('en-GB', {day:'2-digit', month:'short', year:'numeric'});
+}
+
+function setKpiFilter(f) {
+  kpiFilter = kpiFilter === f ? null : f;
+  applyFilters();
+}
+
+function setTab(tab, el) {
+  currentTab = tab;
+  kpiFilter = null;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+
+  const siteDash = document.getElementById('siteDashboard');
+  const mainLayout = document.getElementById('mainLayout');
+  const filterBar = document.querySelector('.filter-bar');
+  const kpiRow = document.getElementById('kpi-row');
+
+  if (tab === 'sites') {
+    siteDash.style.display = 'block';
+    mainLayout.style.display = 'none';
+    renderSiteDashboard();
+  } else {
+    siteDash.style.display = 'none';
+    mainLayout.style.display = 'grid';
+    applyFilters();
+  }
+}
+
+function clearFilters() {
+  document.getElementById('q').value = '';
+  document.getElementById('fStatus').value = '';
+  document.getElementById('fCat').value = '';
+  document.getElementById('fOwner').value = '';
+  kpiFilter = null;
+  applyFilters();
+}
+
+function applyFilters() {
+  const q = document.getElementById('q').value.toLowerCase();
+  const st = document.getElementById('fStatus').value;
+  const cat = document.getElementById('fCat').value;
+  const own = document.getElementById('fOwner').value;
+
+  let base = DATA;
+  if (currentTab === 'fleet') base = base.filter(e => e.sheet === 'VEWLL Fleet');
+  if (currentTab === 'rental') base = base.filter(e => e.sheet === 'Rental Kit');
+
+  filtered = base.filter(e => {
+    if (kpiFilter === 'working' && e.status !== 'Working') return false;
+    if (kpiFilter === 'faulty' && e.status !== 'Faulty') return false;
+    if (kpiFilter === 'calib_exp' && calibSt(e.calib_expiry) !== 'expired') return false;
+    if (kpiFilter === 'calib_warn' && calibSt(e.calib_expiry) !== 'warn') return false;
+    if (kpiFilter === 'deployed') {
+      const l = todayLoc(e);
+      if (!l || l === 'Argentine Store' || l.toLowerCase().includes('return') || l.toLowerCase().includes('repair') || l.toLowerCase().includes('service')) return false;
+    }
+    if (st && e.status !== st) return false;
+    if (cat && e.category !== cat) return false;
+    if (own && e.owner !== own) return false;
+    if (q) {
+      const h = [e.equipment, e.serial, e.category, e.owner, todayLoc(e), e.remarks].join(' ').toLowerCase();
+      if (!h.includes(q)) return false;
+    }
+    return true;
+  });
+
+  filtered.sort((a, b) => {
+    let va = a[sortKey] || '', vb = b[sortKey] || '';
+    if (sortKey === 'sno') { va = parseInt(va) || 0; vb = parseInt(vb) || 0; }
+    else { va = String(va).toLowerCase(); vb = String(vb).toLowerCase(); }
+    return sortAsc ? (va > vb ? 1 : -1) : (va < vb ? 1 : -1);
+  });
+
+  renderKPIs(base);
+  renderTable();
+  renderSites();
+  renderDonut();
+  document.getElementById('resultChip').textContent = filtered.length + ' items';
+}
+
+function sortBy(key) {
+  if (sortKey === key) sortAsc = !sortAsc; else { sortKey = key; sortAsc = true; }
+  applyFilters();
+}
+
+// ==================== RENDER FUNCTIONS ====================
+
+function renderKPIs(base) {
+  const total = base.length;
+  const working = base.filter(e => e.status === 'Working').length;
+  const faulty = base.filter(e => e.status === 'Faulty').length;
+  const deployed = base.filter(e => {
+    const l = todayLoc(e);
+    return l && l !== 'Argentine Store' && !l.toLowerCase().includes('return') && !l.toLowerCase().includes('repair') && !l.toLowerCase().includes('service');
+  }).length;
+  const calibExp = base.filter(e => calibSt(e.calib_expiry) === 'expired').length;
+  const calibWarn = base.filter(e => calibSt(e.calib_expiry) === 'warn').length;
+
+  const todayLabel = NOW.toLocaleDateString('en-GB', {day:'numeric', month:'short'});
+  const kpis = [
+    {label:'Total Equipment', val:total, sub:'All registered', color:'blue', filter:null},
+    {label:'Operational', val:working, sub:Math.round(working/total*100)+'% availability', color:'green', filter:'working'},
+    {label:'Faulty', val:faulty, sub:'Need attention', color:'red', filter:'faulty'},
+    {label:'Deployed Today', val:deployed, sub:todayLabel+' — active sites', color:'teal', filter:'deployed'},
+    {label:'Calib. Expired', val:calibExp, sub:'Overdue calibration', color:'red', filter:'calib_exp'},
+    {label:'Calib. Due Soon', val:calibWarn, sub:'Within 90 days', color:'amber', filter:'calib_warn'},
+  ];
+
+  document.getElementById('kpi-row').innerHTML = kpis.map(k => {
+    const isActive = kpiFilter === k.filter && k.filter !== null;
+    const clickable = k.filter !== null;
+    return '<div class="kpi ' + k.color + (isActive ? ' active-filter' : '') + '"'
+      + (clickable ? ' onclick="setKpiFilter(\'' + k.filter + '\')"' : '')
+      + '>'
+      + '<div class="kpi-bar"></div>'
+      + '<div class="kpi-label">' + k.label + '</div>'
+      + '<div class="kpi-val">' + k.val + '</div>'
+      + '<div class="kpi-sub">' + k.sub + (clickable ? (isActive ? ' · clear ×' : ' · filter') : '') + '</div>'
+      + '</div>';
+  }).join('');
+}
+
+function renderTable() {
+  const tbody = document.getElementById('tbody');
+  if (!filtered.length) {
+    tbody.innerHTML = '<tr><td colspan="9" class="no-data">No equipment matches the current filters.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = filtered.map((e, i) => {
+    const cs = calibSt(e.calib_expiry);
+    const cc = cs === 'ok' ? 'calib-ok' : cs === 'warn' ? 'calib-warn' : cs === 'expired' ? 'calib-exp' : 'muted';
+    const loc = todayLoc(e) || '—';
+    const locColor = loc === '—' ? 'var(--text-3)' : loc === 'Repair' || loc === 'Service' ? 'var(--red)' : loc === 'Returned' ? 'var(--amber)' : 'var(--teal)';
+    return '<tr onclick="showDrawer(' + i + ')">'
+      + '<td class="muted mono">' + e.sno + '</td>'
+      + '<td>' + e.category + '</td>'
+      + '<td><strong>' + e.equipment + '</strong></td>'
+      + '<td class="muted mono">' + e.serial + '</td>'
+      + '<td>' + e.owner + '</td>'
+      + '<td><span class="badge ' + (e.status === 'Working' ? 'badge-working' : 'badge-faulty') + '">' + e.status + '</span></td>'
+      + '<td class="' + cc + ' mono">' + fmtDate(e.calib_expiry) + '</td>'
+      + '<td style="color:' + locColor + ';font-weight:600">' + loc + '</td>'
+      + '<td><span class="badge ' + (e.sheet === 'Rental Kit' ? 'badge-rental' : 'badge-fleet') + '">'
+      + (e.sheet === 'Rental Kit' ? 'RENTAL' : 'FLEET') + '</span></td>'
+      + '</tr>';
+  }).join('');
+}
+
+function renderSites() {
+  const counts = {};
+  filtered.forEach(e => {
+    const l = todayLoc(e);
+    if (l) counts[l] = (counts[l] || 0) + 1;
+  });
+  const sorted = Object.entries(counts).sort((a,b) => b[1]-a[1]).slice(0, 12);
+  const max = sorted[0] ? sorted[0][1] : 1;
+  const el = document.getElementById('siteBars');
+  if (!sorted.length) { el.innerHTML = '<div style="color:var(--text-3);font-size:12px;text-align:center;padding:20px">No site data</div>'; return; }
+  el.innerHTML = sorted.map(([site, cnt]) =>
+    '<div class="site-row" onclick="document.getElementById(\'q\').value=\''+site+'\';applyFilters()">'
+    + '<span class="site-name" title="'+site+'">'+site+'</span>'
+    + '<div class="bar-track"><div class="bar-fill" style="width:'+Math.round(cnt/max*100)+'%"></div></div>'
+    + '<span class="site-num">'+cnt+'</span>'
+    + '</div>'
+  ).join('');
+}
+
+const COLORS = ['#3b82f6','#22c55e','#f59e0b','#a78bfa','#2dd4bf','#ef4444','#fb923c','#06b6d4','#84cc16','#ec4899','#f97316','#8b5cf6'];
+
+function renderDonut() {
+  const counts = {};
+  filtered.forEach(e => { counts[e.category] = (counts[e.category] || 0) + 1; });
+  const sorted = Object.entries(counts).sort((a,b) => b[1]-a[1]);
+  const top = sorted.slice(0, 9);
+  const other = sorted.slice(9).reduce((s,[,c]) => s+c, 0);
+  if (other) top.push(['Other', other]);
+  const total = top.reduce((s,[,c]) => s+c, 0) || 1;
+
+  const canvas = document.getElementById('donut');
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, 160, 160);
+  let angle = -Math.PI / 2;
+  top.forEach(([, cnt], i) => {
+    const s = (cnt / total) * 2 * Math.PI;
+    ctx.beginPath(); ctx.moveTo(80, 80);
+    ctx.arc(80, 80, 72, angle, angle+s); ctx.closePath();
+    ctx.fillStyle = COLORS[i % COLORS.length]; ctx.fill();
+    angle += s;
+  });
+  ctx.beginPath(); ctx.arc(80, 80, 46, 0, 2*Math.PI);
+  ctx.fillStyle = '#ffffff'; ctx.fill();
+  ctx.fillStyle = '#1a202c'; ctx.font = 'bold 20px DM Mono,monospace';
+  ctx.textAlign = 'center'; ctx.fillText(total, 80, 86);
+  ctx.fillStyle = '#a0aec0'; ctx.font = '8px Inter,sans-serif';
+  ctx.fillText('TOTAL', 80, 99);
+
+  document.getElementById('catLegend').innerHTML = top.slice(0, 8).map(([cat, cnt], i) =>
+    '<div class="cat-item" onclick="document.getElementById(\'fCat\').value=\''+cat+'\';applyFilters()">'
+    + '<span class="cat-dot" style="background:'+COLORS[i % COLORS.length]+'"></span>'
+    + '<span class="cat-name" title="'+cat+'">'+cat+'</span>'
+    + '<span class="cat-pct">'+cnt+' · '+Math.round(cnt/total*100)+'%</span>'
+    + '</div>'
+  ).join('');
+}
+
+// ==================== SITE DASHBOARD ====================
+
+let expandedSite = null;
+
+function calcManDays(site) {
+  // Count days each equipment spent at this site across the whole month
+  // Returns: catMap[category] = [ {equipment, serial, status, days}, ... ]
+  const catMap = {};
+
+  DATA.forEach(e => {
+    let days = 0;
+    Object.values(e.april_locations).forEach(loc => {
+      if (loc && loc.trim() === site) days++;
+    });
+    if (days > 0) {
+      if (!catMap[e.category]) catMap[e.category] = [];
+      catMap[e.category].push({ equipment: e.equipment, serial: e.serial, status: e.status, days });
+    }
+  });
+
+  // Total man-days per category = sum of all kit-days in that category
+  const catDays = {};
+  Object.entries(catMap).forEach(([cat, kits]) => {
+    catDays[cat] = kits.reduce((s, k) => s + k.days, 0);
+  });
+
+  return { catMap, catDays };
+}
+
+function renderSiteDashboard() {
+  // Build site → today's kits map
+  const siteMap = {};
+  DATA.forEach(e => {
+    const loc = todayLoc(e);
+    if (!loc || loc.toLowerCase().includes('return') || loc.toLowerCase().includes('repair')
+        || loc.toLowerCase().includes('service') || loc === 'Argentine Store') return;
+    if (!siteMap[loc]) siteMap[loc] = [];
+    siteMap[loc].push(e);
+  });
+
+  // Also include sites that appeared this month but not today
+  DATA.forEach(e => {
+    Object.values(e.april_locations).forEach(loc => {
+      if (loc && !loc.toLowerCase().includes('return') && !loc.toLowerCase().includes('repair')
+          && !loc.toLowerCase().includes('service') && loc !== 'Argentine Store') {
+        if (!siteMap[loc]) siteMap[loc] = [];
+      }
+    });
+  });
+
+  const sites = Object.entries(siteMap).sort((a,b) => b[1].length - a[1].length || a[0].localeCompare(b[0]));
+
+  if (!sites.length) {
+    document.getElementById('siteDashGrid').innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-3)">No active site deployments for today.</div>';
+    return;
+  }
+
+  document.getElementById('siteDashGrid').innerHTML = sites.map(([site, kits]) => {
+    const working = kits.filter(k => k.status === 'Working').length;
+    const faulty  = kits.filter(k => k.status !== 'Working').length;
+    const safeId  = 'site_' + site.replace(/[^a-zA-Z0-9]/g, '_');
+
+    // ---- Today's kit list ----
+    const kitsHtml = kits.length
+      ? '<div class="site-section-label">📍 Kits On Site Today</div>'
+        + kits.map(k => {
+            const dotColor = k.status === 'Working' ? 'var(--green)' : 'var(--red)';
+            return '<div class="site-kit-row">'
+              + '<span class="site-kit-name">' + k.equipment + '</span>'
+              + '<span class="site-kit-serial">' + k.serial + '</span>'
+              + '<span class="site-kit-status-dot" style="background:'+dotColor+'"></span>'
+              + '</div>';
+          }).join('')
+      : '<div style="font-size:11px;color:var(--text-3);padding:4px 0">No kits deployed today</div>';
+
+    // ---- Man-days calculation ----
+    const { catMap, catDays } = calcManDays(site);
+    const catEntries = Object.entries(catDays).sort((a,b) => b[1]-a[1]);
+    const totalManDays = catEntries.reduce((s,[,d]) => s+d, 0);
+    const maxDays = catEntries[0] ? catEntries[0][1] : 1;
+
+    const manDaysHtml = catEntries.length
+      ? '<div class="mandays-section">'
+        + '<div class="mandays-title">📊 Man-Days by Category — April 2026</div>'
+        + '<table class="mandays-table">'
+        + '<thead><tr>'
+        + '<th>Category</th>'
+        + '<th style="text-align:center">Kits</th>'
+        + '<th>Kit Details (Serial · Days)</th>'
+        + '<th style="text-align:right">Total Days</th>'
+        + '</tr></thead>'
+        + '<tbody>'
+        + catEntries.map(([cat, totalDays]) => {
+            const kitsInCat = catMap[cat] || [];
+            const uniqueKits = kitsInCat.length;
+            const barWidth = Math.round(totalDays / maxDays * 60);
+            // Individual kit breakdown
+            const kitBreakdown = kitsInCat
+              .sort((a,b) => b.days - a.days)
+              .map(k => '<span style="display:inline-block;margin:1px 3px 1px 0;background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:1px 5px;font-size:9px;color:var(--text-2);white-space:nowrap">'
+                + k.serial + ' · <b style="color:var(--teal)">' + k.days + 'd</b>'
+                + '</span>')
+              .join('');
+
+            return '<tr>'
+              + '<td style="font-weight:600;color:var(--text)">' + cat + '</td>'
+              + '<td style="text-align:center;font-family:var(--mono);color:var(--blue);font-weight:700">' + uniqueKits + '</td>'
+              + '<td><div style="line-height:1.8">' + kitBreakdown + '</div></td>'
+              + '<td style="text-align:right">'
+              + '<div class="mandays-bar-wrap" style="justify-content:flex-end;gap:8px">'
+              + '<div class="mandays-mini-bar" style="width:'+barWidth+'px"></div>'
+              + '<span class="mandays-days-badge">' + totalDays + 'd</span>'
+              + '</div></td>'
+              + '</tr>';
+          }).join('')
+        + '<tr class="mandays-total-row">'
+        + '<td colspan="3" style="font-weight:700">Total Man-Days (April 2026)</td>'
+        + '<td style="text-align:right"><span class="mandays-days-badge" style="background:var(--blue-dim);color:var(--blue);border-color:rgba(59,130,246,.3)">' + totalManDays + 'd</span></td>'
+        + '</tr>'
+        + '</tbody></table>'
+        + '</div>'
+      : '<div style="font-size:11px;color:var(--text-3);padding:8px 0">No man-day data for this site this month.</div>';
+
+    return '<div class="site-card" id="' + safeId + '">'
+      + '<div class="site-card-name">🏗️ ' + site + '</div>'
+      + '<div class="site-card-stats">'
+      + '<div class="site-stat"><div class="site-stat-val">' + kits.length + '</div><div class="site-stat-lbl">Today</div></div>'
+      + '<div class="site-stat"><div class="site-stat-val" style="color:var(--green)">' + working + '</div><div class="site-stat-lbl">Working</div></div>'
+      + '<div class="site-stat"><div class="site-stat-val" style="color:var(--teal)">' + totalManDays + '</div><div class="site-stat-lbl">Man-Days</div></div>'
+      + (faulty ? '<div class="site-stat"><div class="site-stat-val" style="color:var(--red)">' + faulty + '</div><div class="site-stat-lbl">Faulty</div></div>' : '')
+      + '</div>'
+      + '<div class="site-card-toggle" onclick="toggleSiteExpand(\'' + safeId + '\', this)">▼ View kits & man-days</div>'
+      + '<div class="site-expand-panel" id="' + safeId + '_panel">'
+      + kitsHtml
+      + manDaysHtml
+      + '</div>'
+      + '</div>';
+  }).join('');
+}
+
+function toggleSiteExpand(siteId, btn) {
+  const panel = document.getElementById(siteId + '_panel');
+  const card = document.getElementById(siteId);
+  const isOpen = panel.classList.contains('open');
+
+  // Close all
+  document.querySelectorAll('.site-expand-panel.open').forEach(p => p.classList.remove('open'));
+  document.querySelectorAll('.site-card.expanded').forEach(c => c.classList.remove('expanded'));
+  document.querySelectorAll('.site-card-toggle').forEach(b => { b.textContent = b.textContent.replace('▲', '▼'); });
+
+  if (!isOpen) {
+    panel.classList.add('open');
+    card.classList.add('expanded');
+    btn.textContent = btn.textContent.replace('▼', '▲');
+    card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+}
+
+// ==================== DRAWER ====================
+
+function showDrawer(idx) {
+  const e = filtered[idx];
+  const cs = calibSt(e.calib_expiry);
+  const calibColor = cs==='ok'?'var(--green)':cs==='warn'?'var(--amber)':cs==='expired'?'var(--red)':'var(--text-3)';
+
+  document.getElementById('drawer-title').innerHTML =
+    '<div class="drawer-cat">' + e.category + ' · ' + (e.sheet==='Rental Kit'?'RENTAL KIT':'VEWLL FLEET') + '</div>'
+    + '<div class="drawer-name">' + e.equipment + '</div>'
+    + '<div class="drawer-serial">Serial: ' + e.serial + '</div>';
+
+  // Build calendar
+  const monthStart = new Date(2026, 3, 1).getDay(); // April 1 day-of-week
+  const todayNum = parseInt(TODAY_DAY);
+  let cells = '';
+  for (let i = 0; i < monthStart; i++) cells += '<div class="cal-cell empty"></div>';
+  for (let d = 1; d <= 30; d++) {
+    const loc = e.april_locations[String(d)] || '';
+    const hasLoc = !!loc;
+    const isToday = d === todayNum;
+    cells += '<div class="cal-cell' + (hasLoc?' has-loc':'') + (isToday?' today':'') + '">'
+      + d
+      + (hasLoc ? '<div class="cal-tip">'+loc+'</div>' : '')
+      + '</div>';
+  }
+
+  document.getElementById('drawer-body').innerHTML =
+    '<div class="detail-grid">'
+    + '<div class="detail-tile"><div class="detail-tile-lbl">Owner</div><div class="detail-tile-val">'+e.owner+'</div></div>'
+    + '<div class="detail-tile"><div class="detail-tile-lbl">Status</div><div class="detail-tile-val" style="color:'+(e.status==='Working'?'var(--green)':'var(--red)')+'">'+e.status+'</div></div>'
+    + '<div class="detail-tile"><div class="detail-tile-lbl">Calib. Expiry</div><div class="detail-tile-val" style="color:'+calibColor+'">'+fmtDate(e.calib_expiry)+'</div></div>'
+    + '<div class="detail-tile"><div class="detail-tile-lbl">Today</div><div class="detail-tile-val" style="color:var(--teal)">'+(todayLoc(e)||'—')+'</div></div>'
+    + '</div>'
+    + (e.remarks ? '<div class="remarks-box">📝 ' + e.remarks + '</div>' : '')
+    + '<div class="cal-section-title">📅 April 2026 — Location Tracker</div>'
+    + '<div class="cal-days-hdr">' + ['Su','Mo','Tu','We','Th','Fr','Sa'].map(d=>'<div class="cal-day-name">'+d+'</div>').join('') + '</div>'
+    + '<div class="cal-grid">' + cells + '</div>'
+    + '<div class="cal-hint">💡 Hover any highlighted day to see the site name</div>';
+
+  document.getElementById('drawer').classList.add('open');
+  document.getElementById('overlay').classList.add('on');
+}
+
+function closeDrawer() {
+  document.getElementById('drawer').classList.remove('open');
+  document.getElementById('overlay').classList.remove('on');
+}
+
+</script>
+</body>
+</html>
